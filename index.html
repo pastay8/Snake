@@ -97,11 +97,19 @@
     <button id="restartBtn" onclick="restartGame()">🔁 Restart Game</button>
   </div>
 
+  <!-- 🔊 Sound Effects -->
+  <audio id="eatSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YVQAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==" preload="auto"></audio>
+  <audio id="loseSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YVQAAAAAAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA" preload="auto"></audio>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreDisplay = document.getElementById("score");
     const restartBtn = document.getElementById("restartBtn");
+
+    // 🔊 Sound Effects
+    const eatSound = document.getElementById("eatSound");
+    const loseSound = document.getElementById("loseSound");
 
     const box = 20;
     const canvasSize = canvas.width;
@@ -166,6 +174,7 @@
       // Collision with self
       if (snake.some((s, i) => i !== 0 && s.x === headX && s.y === headY)) {
         clearInterval(game);
+        loseSound.play(); // ❌ Play lose sound
         restartBtn.style.display = "inline-block";
         return;
       }
@@ -176,6 +185,7 @@
       if (headX === food.x && headY === food.y) {
         score++;
         scoreDisplay.textContent = score;
+        eatSound.play(); // ✅ Play eat sound
         food = {
           x: Math.floor(Math.random() * (canvasSize / box)) * box,
           y: Math.floor(Math.random() * (canvasSize / box)) * box,
@@ -187,11 +197,11 @@
 
     function restartGame() {
       resetGame();
-      game = setInterval(draw, 150); // 🐢 Slower game speed
+      game = setInterval(draw, 150);
     }
 
     resetGame();
-    game = setInterval(draw, 150); // 🐢 Slower game speed
+    game = setInterval(draw, 150);
   </script>
 </body>
 </html>
