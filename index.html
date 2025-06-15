@@ -13,6 +13,17 @@
       height: 100%;
       width: 100%;
       font-family: sans-serif;
+      color: #0f0;
+    }
+    h1 {
+      text-align: center;
+      margin: 10px 0 5px 0;
+      font-size: 1.5rem;
+    }
+    #scoreBoard {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
     }
     canvas {
       display: block;
@@ -21,11 +32,8 @@
       border: 3px solid #0f0;
       box-shadow: 0 0 10px #0f0;
     }
-    #restartBtn {
+    #restartBtn, #resetHighScoreBtn {
       position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
       background: red;
       color: white;
       font-size: 1rem;
@@ -35,13 +43,30 @@
       display: none;
       z-index: 10;
     }
+    #restartBtn {
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #resetHighScoreBtn {
+      top: 10px;
+      right: 10px;
+      background: #111;
+      border: 1px solid #0f0;
+      display: block;
+    }
   </style>
 </head>
 <body>
+  <h1>🐍 Snake Game</h1>
+  <div id="scoreBoard">
+    Score: <span id="score">0</span> | High Score: <span id="highScore">0</span>
+  </div>
   <canvas id="gameCanvas"></canvas>
   <button id="restartBtn" onclick="restartGame()">🔁 Restart</button>
+  <button id="resetHighScoreBtn" onclick="resetHighScore()">🗑️ Reset High Score</button>
 
-  <!-- Sound effects -->
+  <!-- Sounds -->
   <audio id="eatSound" src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YVQAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==" preload="auto"></audio>
   <audio id="loseSound" src="data:audio/wav;base64,UklGRmQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YVQAAAAAAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA" preload="auto"></audio>
   <audio id="bgMusic" loop preload="auto">
@@ -55,14 +80,17 @@
     const eatSound = document.getElementById("eatSound");
     const loseSound = document.getElementById("loseSound");
     const bgMusic = document.getElementById("bgMusic");
+    const scoreDisplay = document.getElementById("score");
+    const highScoreDisplay = document.getElementById("highScore");
 
     let box, cols, rows, canvasSize;
     let snake, food, direction, score, game;
+    let highScore = localStorage.getItem("snakeHighScore") || 0;
+    highScoreDisplay.textContent = highScore;
 
     function resizeCanvas() {
       canvasSize = Math.min(window.innerWidth, window.innerHeight);
       canvas.width = canvas.height = canvasSize;
-
       box = Math.floor(canvasSize / 20);
       cols = rows = Math.floor(canvasSize / box);
     }
@@ -120,8 +148,9 @@
       };
       direction = null;
       score = 0;
+      scoreDisplay.textContent = score;
       restartBtn.style.display = "none";
-      bgMusic.play().catch(() => {}); // attempt autoplay
+      bgMusic.play().catch(() => {});
     }
 
     function draw() {
@@ -163,6 +192,13 @@
 
       if (head.x === food.x && head.y === food.y) {
         eatSound.play();
+        score++;
+        scoreDisplay.textContent = score;
+        if (score > highScore) {
+          highScore = score;
+          localStorage.setItem("snakeHighScore", highScore);
+          highScoreDisplay.textContent = highScore;
+        }
         food = {
           x: Math.floor(Math.random() * cols),
           y: Math.floor(Math.random() * rows)
@@ -175,6 +211,12 @@
     function restartGame() {
       resetGame();
       game = setInterval(draw, 180);
+    }
+
+    function resetHighScore() {
+      localStorage.removeItem("snakeHighScore");
+      highScore = 0;
+      highScoreDisplay.textContent = highScore;
     }
 
     resizeCanvas();
